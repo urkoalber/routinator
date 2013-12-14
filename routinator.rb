@@ -21,7 +21,8 @@ class CardioExercise
 end
 
 class Injury
-  attr_accessor :quadriceps, :hamstring, :lumbar, :abdominal, :shoulder, :arm, :chest, :back, :ankle, :knee, :wrist, :elbow
+  attr_accessor :quadriceps, :hamstring, :lumbar, :abdominal, :shoulder, :arm, :chest, :back, :ankle, :knee, :wrist,
+                :elbow
 end
 
 class WarmUp
@@ -29,6 +30,6 @@ class WarmUp
 end
 
 class Routine
-  attr_accessor :type, :muscle-days, :cardio-days
+  attr_accessor :type, :muscle_days, :cardio_days
 end
 
