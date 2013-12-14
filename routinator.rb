@@ -19,3 +19,16 @@ end
 class CardioExercise
   attr_accessor :name, :duration, :intensity
 end
+
+class Injury
+  attr_accessor :quadriceps, :hamstring, :lumbar, :abdominal, :shoulder, :arm, :chest, :back, :ankle, :knee, :wrist, :elbow
+end
+
+class WarmUp
+  attr_accessor :length
+end
+
+class Routine
+  attr_accessor :type, :muscle-days, :cardio-days
+end
+
