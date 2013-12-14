@@ -33,3 +33,27 @@ class Routine
   attr_accessor :type, :muscle_days, :cardio_days
 end
 
+puts "Introduce tu edad"
+age = gets.chomp
+puts "Introduce tu bodyfat (sin porcentaje)"
+bodyfat = gets.chomp
+puts "Introduce tu sexo"
+gender = gets.chomp
+puts "Indica tu nivel de actividad (activo, medio, sedentario)"
+activity_level = gets.chomp
+puts "Indica tu objetivo de peso (ganar, mantener, perder)"
+weight_target = gets.chomp
+puts "Indica tu objetivo anaeróbico (fuerza, hipertrofia, resistencia)"
+anaerobic_target = gets.chomp
+if weight_target != "ganar" then
+	puts "Indica tu objetivo aeróbico (explosividad, media-distancia, larga-distancia)"
+	aerobic_target = gets.chomp
+end
+puts "Indica el numero de días que quieres dedicarle a la semana (2-6)"
+dedicated_days = gets.chomp
+
+if gender == "hombre" and edad >=15 and edad<=20 and bodyfat<=12 then
+	constitution="delgado"
+end
+
+
