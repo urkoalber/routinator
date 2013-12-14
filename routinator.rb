@@ -33,10 +33,45 @@ class Routine
   attr_accessor :type, :muscle_days, :cardio_days
 end
 
+def check_constitution(gender, age, bodyfat)
+	if gender == "hombre" and age >= 15 and age <= 20 and bodyfat <= 12 then #R1
+		constitution = "delgado"
+		return constitution
+		elsif gender == "hombre" and age >= 15 and age <= 20 and bodyfat >= 13 and bodyfat <= 18 then #R2
+			constitution = "saludable"
+			return constitution
+			elsif gender == "hombre" and age >= 15 and age <= 20 and bodyfat >= 19 and bodyfat <= 24 then #R3
+				constitution = "sobrepeso"
+				return constitution
+				elsif gender == "hombre" and age >= 15 and age <= 20 and bodyfat >= 25 then #R4
+					constitution = "obeso"
+					return constitution
+					elsif gender == "hombre" and age >= 20 and age <= 35 and bodyfat <= 13 then  #R5
+						constitution = "delgado"
+						return constitution
+						elsif gender == "hombre" and age >= 20 and age <=35 and bodyfat >= 14 and bodyfat <=19 then  #R6
+							constitution = "saludable"
+							return constitution
+							elsif gender == "hombre" and age >= 20 and age <=35 and bodyfat >= 20 and bodyfat <=25 then #R7
+								constitution = "sobrepeso"
+								return constitution
+								elsif gender == "hombre" and age >= 20 and age <=35 and bodyfat >= 26 then #
+									constitution = "obeso"
+									return constitution
+									elsif gender == "hombre" and age >= 35 and age <=50 and bodyfat <=15 then #R9
+										constitution = "delgado"
+										return constitution
+										elsif gender == "hombre" and age >= 35 and age <=50 and bodyfat >= 16 and bodyfat <=21 then #R10
+											constitution = "saludable"
+											return constitution
+	end	
+end
+
+
 puts "Introduce tu edad"
-age = gets.chomp
+age = gets.chomp.to_i
 puts "Introduce tu bodyfat (sin porcentaje)"
-bodyfat = gets.chomp
+bodyfat = gets.chomp.to_i
 puts "Introduce tu sexo"
 gender = gets.chomp
 puts "Indica tu nivel de actividad (activo, medio, sedentario)"
@@ -50,10 +85,6 @@ if weight_target != "ganar" then
 	aerobic_target = gets.chomp
 end
 puts "Indica el numero de días que quieres dedicarle a la semana (2-6)"
-dedicated_days = gets.chomp
+dedicated_days = gets.chomp.to_i
 
-if gender == "hombre" and edad >=15 and edad<=20 and bodyfat<=12 then
-	constitution="delgado"
-end
-
-
+constitution = check_constitution(gender, age, bodyfat)
