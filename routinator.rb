@@ -55,6 +55,30 @@ end
 class Injury
   attr_accessor :quadriceps, :hamstring, :lumbar, :abdominal, :shoulder, :arm, :chest, :back, :ankle, :knee, :wrist,
                 :elbow
+
+  def initialize
+    self.quadriceps, self.hamstring, self.lumbar, self.abdominal, self.shoulder, self.arm, self.chest, self.back,
+        self.ankle, self.knee, self.wrist, self.elbow = false, false, false, false, false, false, false, false, false,
+        false, false, false
+  end
+
+  def evaluate_injury(input)
+    unless input == 'no'
+      injury_list = input.gsub(' ', '').split(',')
+      self.quadriceps = true if injury_list.include? 'cuadriceps'
+      self.hamstring = true if injury_list.include? 'isquiotibial'
+      self.lumbar = true if injury_list.include? 'lumbar'
+      self.abdominal = true if injury_list.include? 'abdominal'
+      self.shoulder = true if injury_list.include? 'hombro'
+      self.arm = true if injury_list.include? 'brazo'
+      self.chest = true if injury_list.include? 'pecho'
+      self.back = true if injury_list.include? 'espalda'
+      self.ankle = true if injury_list.include? 'tobillo'
+      self.knee = true if injury_list.include? 'rodilla'
+      self.wrist = true if injury_list.include? 'muñeca'
+      self.elbow = true if injury_list.include? 'codo'
+    end
+  end
 end
 
 class WarmUp
@@ -103,6 +127,7 @@ end
 
 user = User.new
 routine = Routine.new
+injury = Injury.new
 
 puts 'Introduce tu edad:'
 user.age = gets.chomp.to_i
@@ -124,3 +149,12 @@ end
 puts 'Indica el numero de días que quieres dedicarle a la semana (2-6):'
 user.dedicated_days = gets.chomp.to_i
 routine.set_routine(user.dedicated_days, user.weight_target)
+
+puts user
+puts routine
+
+puts '¿Tiene alguna lesión? (cuadriceps, isquiotibial, lumbar, abdominal, hombro, brazo, pecho, espalda, tobillo, rodilla, muñeca, codo).'
+puts 'Introduzca el nombre de la lesión. Si son varios, sepárelos por coma. Introduzca "no" en caso negativo.'
+injury.evaluate_injury(gets.chomp)
+
+puts injury
