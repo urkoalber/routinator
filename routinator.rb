@@ -1,8 +1,6 @@
 #!/bin/env ruby
 # encoding: utf-8
 
-require 'rubygems'
-
 class User
   attr_accessor :age, :bodyfat, :constitution, :gender, :activity_level, :weight_target, :aerobic_target,
                 :anaerobic_target, :dedicated_days
@@ -40,16 +38,85 @@ class User
 
 end
 
-class Problem
-  attr_accessor :muscular, :articular, :circumstancial
+class Circumstance
+  attr_accessor :pregnant
 end
 
 class MuscularExercise
-  attr_accessor :name, :series, :repetitions, :break_time
+  attr_accessor :series, :repetitions, :break_time
+
+  def set_exercise(anaerobic_target, activity_level)
+    if anaerobic_target == 'fuerza'
+      self.repetitions = 5
+      self.break_time = 120
+    elsif anaerobic_target == 'hipertrofia'
+      self.repetitions = 10
+      self.break_time = 80
+    else
+      self.repetitions = 15
+      self.break_time = 40
+    end
+
+    self.series = case activity_level
+                    when 'sedentario' then 3
+                    when 'medio' then 4
+                    when 'activo' then 5
+                    else 0
+                  end
+
+  end
+
+  def to_s
+    "Series: #{self.series}. Repeticiones: #{self.repetitions}. Descanso: #{self.break_time}."
+  end
 end
 
 class CardioExercise
-  attr_accessor :name, :duration, :intensity
+  attr_accessor :type, :duration, :intensity
+
+  def set_exercise(aerobic_target, activity_level, constitution)
+    if aerobic_target == 'explosividad'
+      self.intensity = 'interválica-alta-baja'
+      duration = 30
+    elsif aerobic_target == 'larga-distancia'
+      self.intensity = 'baja'
+      duration = 75
+    else
+      self.intensity = 'media'
+      duration = 45
+    end
+
+    duration = case activity_level
+                 when 'sedentario' then duration - 0.1 * duration
+                 when 'medio' then duration + 0.1 * duration
+                 when 'activo' then duration + 0.2 * duration
+                 else duration
+               end
+    self.duration = case constitution
+                      when :thin then duration - 0.2 * duration
+                      when :overweight then duration + 0.1 * duration
+                      when :obese then duration + 0.2 * duration
+                      else duration
+                    end
+
+    type = nil
+    type = 'bici' if (activity_level == 'sedentario' and constitution != :thin)
+    type = 'elíptica' if ((activity_level == 'sedentario' and constitution == :thin) or
+        (activity_level == 'medio' and (constitution == :healthy or constitution == :overweight)) or
+        (activity_level == 'activo' and (constitution == :obese or constitution == :overweight)))
+    type = 'cinta' if (constitution == :healthy and activity_level == 'activo') or (constitution == :thin and
+        (activity_level == 'medio' or activity_level == 'activo'))
+    self.type = type
+  end
+
+  def set_exercise_type_when_problem(ankle, knee, pregnant)
+    self.type = 'elíptica' if self.type == 'cinta' and (ankle or knee or pregnant)
+    self.intensity = 'media' if self.intensity == 'interválica-alta-baja' and pregnant
+  end
+
+  def to_s
+    "Tipo: #{self.type}. Duración: #{self.duration}. Intensidad: #{self.intensity}."
+  end
 end
 
 class Injury
@@ -83,6 +150,24 @@ end
 
 class WarmUp
   attr_accessor :length
+
+  def set_warm_up(repetitions, activity_level)
+    if (6..9) === repetitions
+      length = 10
+    elsif repetitions < 6
+      length = 15
+    else
+      length = 5
+    end
+    length = length + 5 if activity_level == 'sedentario'
+    length = length - 5 if activity_level == 'activo'
+
+    self.length = length
+  end
+
+  def to_s
+    "Duración del calentamiento: #{self.length}."
+  end
 end
 
 class Routine
@@ -123,11 +208,65 @@ class Routine
     nil
   end
 
+  def set_routine_type_when_problem(wrist_injury, elbow_injury, pregnant)
+    self.type = 'solo-pierna' if wrist_injury or elbow_injury
+    if self.muscle_days > 0 and pregnant
+      self.type = 'solo-cardio'
+      self.cardio_days = self.cardio_days + self.muscle_days
+      self.muscle_days = 0
+    end
+  end
+
+  def to_s
+    "Tipo: #{self.type}. Días de musculación: #{self.muscle_days}. Días de cardio: #{self.cardio_days}."
+  end
+
 end
+
+class ForbbidenExercise
+  attr_accessor :leg, :hamstring, :lumbar, :abdominal, :biceps, :triceps, :chest, :shoulder, :back
+
+  def set_forbbiden_exercise(injury)
+    self.leg = (injury.ankle or injury.knee or injury.lumbar or injury.quadriceps)
+    self.abdominal = injury.abdominal
+    self.hamstring = injury.hamstring
+    self.shoulder = injury.shoulder
+
+    self.biceps = injury.arm
+    self.triceps = injury.arm
+
+    self.chest = injury.chest
+    self.back = injury.back
+
+  end
+
+  def to_s
+    output = 'Ejercicios prohibidos: [ '
+    output << 'pierna ' if self.leg
+    output << 'femoral ' if self.hamstring
+    output << 'lumbar ' if self.lumbar
+    output << 'abdominal ' if self.abdominal
+    output << 'bíceps ' if self.biceps
+    output << 'tríceps ' if self.triceps
+    output << 'pecho ' if self.chest
+    output << 'hombros ' if self.shoulder
+    output << 'espalda ' if self.back
+    output << ']'
+    output
+  end
+
+end
+
+# Execution
 
 user = User.new
 routine = Routine.new
 injury = Injury.new
+circumstance = Circumstance.new
+muscular_exercise = MuscularExercise.new
+cardio_exercise = CardioExercise.new
+warm_up = WarmUp.new
+forbidden_exercies = ForbbidenExercise.new
 
 puts 'Introduce tu edad:'
 user.age = gets.chomp.to_i
@@ -142,7 +281,9 @@ puts 'Indica tu objetivo de peso (ganar, mantener, perder):'
 user.weight_target = gets.chomp
 puts 'Indica tu objetivo anaeróbico (fuerza, hipertrofia, resistencia):'
 user.anaerobic_target = gets.chomp
-unless user.weight_target == 'ganar'
+if user.weight_target == 'ganar'
+  user.aerobic_target = 'no-procede'
+else
 	puts 'Indica tu objetivo aeróbico (explosividad, media-distancia, larga-distancia):'
   user.aerobic_target = gets.chomp
 end
@@ -150,11 +291,42 @@ puts 'Indica el numero de días que quieres dedicarle a la semana (2-6):'
 user.dedicated_days = gets.chomp.to_i
 routine.set_routine(user.dedicated_days, user.weight_target)
 
-puts user
-puts routine
-
 puts '¿Tiene alguna lesión? (cuadriceps, isquiotibial, lumbar, abdominal, hombro, brazo, pecho, espalda, tobillo, rodilla, muñeca, codo).'
 puts 'Introduzca el nombre de la lesión. Si son varios, sepárelos por coma. Introduzca "no" en caso negativo.'
 injury.evaluate_injury(gets.chomp)
 
-puts injury
+if user.gender == 'mujer'
+  puts '¿Está embarazada? (si/no)'
+  circumstance.pregnant = gets.chomp == 'si' ? true : false
+else
+  circumstance.pregnant = false
+end
+
+if routine.muscle_days > 0
+  muscular_exercise.set_exercise(user.anaerobic_target, user.activity_level)
+  warm_up.set_warm_up(muscular_exercise.repetitions, user.activity_level)
+end
+cardio_exercise.set_exercise(user.aerobic_target, user.activity_level, user.constitution) if routine.cardio_days > 0
+forbidden_exercies.set_forbbiden_exercise(injury)
+cardio_exercise.set_exercise_type_when_problem(injury.ankle, injury.knee, circumstance.pregnant)
+routine.set_routine_type_when_problem(injury.wrist, injury.elbow, circumstance.pregnant)
+
+puts '================================================================'
+puts 'Informe de ejercicios'
+puts '================================================================'
+puts 'Rutina:'
+puts routine
+puts '----------------------------------------------------------------'
+puts 'Calentamiento:'
+puts warm_up
+puts '----------------------------------------------------------------'
+puts 'Ejercicio de cardio:'
+puts cardio_exercise if routine.cardio_days > 0
+puts ' -- ' if routine.cardio_days <= 0
+puts '----------------------------------------------------------------'
+puts 'Ejercicio de musculación:'
+puts muscular_exercise if routine.muscle_days > 0 or routine.type != 'solo-cardio'
+puts ' -- ' if routine.muscle_days <= 0 or routine.type == 'solo-cardio'
+puts '----------------------------------------------------------------'
+puts forbidden_exercies
+puts '================================================================'
